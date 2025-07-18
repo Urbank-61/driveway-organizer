@@ -1,0 +1,46 @@
+
+#-------------------------------------------------
+#    File: docker-compose.yml
+#    Type: YAML
+#    Project: driveway-organizer
+#    Author: urban
+#    Created: 2024-06-20
+#
+#    Description: Docker Compose configuration 
+#    for the driveway-organizer project.
+#
+#    Version --  Date  -- Author
+#    1.0      2024-06-20  Kurban  
+#-------------------------------------------------
+
+version: "3.8"
+
+services:
+  backend:
+    build: ./backend
+    container_name: driveway-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+
+  local_pi:
+    build: ./local_pi
+    container_name: local-pi-node
+    depends_on:
+      - backend
+    environment:
+      - API_ENDPOINT=http://backend:5000/update_car_status
+    volumes:
+      - ./local_pi:/app
+    restart: unless-stopped
+
+  dashboard:
+    build: ./dashboard
+    container_name: driveway-dashboard
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
